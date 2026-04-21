@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CIT-Racing Team | 日本大学生産工学部 学生フォーミュラ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #e50012;
+      --red-dark: #b0000e;
+      --black: #080808;
+      --dark: #101010;
+      --card: #161616;
+      --border: #242424;
+      --text: #efefef;
+      --muted: #777;
+      --white: #ffffff;
+      --nav-h: 64px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--red); }
+
+    /* ══════════════════════════════
+       LOADER
+    ══════════════════════════════ */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+
+    .loader-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      letter-spacing: 8px;
+      color: var(--white);
+      overflow: hidden;
+    }
+    .loader-logo span { color: var(--red); }
+    .loader-bar-wrap {
+      width: min(280px, 70vw);
+      height: 2px;
+      background: var(--border);
+    }
+    .loader-bar {
+      height: 100%;
+      background: var(--red);
+      width: 0%;
+      animation: loaderFill 1.4s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+    @keyframes loaderFill { to { width: 100%; } }
+
+    /* ══════════════════════════════
+       NAV
+    ══════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(16px, 5vw, 48px);
+      background: rgba(8,8,8,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.4s;
+    }
+    nav.scrolled { background: rgba(8,8,8,0.98); }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.55rem;
+      letter-spacing: 3px;
+      color: var(--white);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .nav-logo em { color: var(--red); font-style: normal; }
+
+    .nav-links {
+      display: flex;
+      gap: clamp(18px, 3vw, 36px);
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+      white-space: nowrap;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 2px;
+      background: var(--red);
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* HAMBURGER */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 44px; height: 44px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      z-index: 910;
+    }
+    .hamburger span {
+      display: block;
+      height: 2px;
+      background: var(--white);
+      border-radius: 2px;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s, width 0.3s;
+      transform-origin: center;
+    }
+    .hamburger span:nth-child(1) { width: 26px; }
+    .hamburger span:nth-child(2) { width: 20px; }
+    .hamburger span:nth-child(3) { width: 26px; }
+    .hamburger.open span:nth-child(1) { width: 26px; transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { width: 26px; transform: translateY(-7px) rotate(-45deg); }
+
+    /* MOBILE MENU DRAWER */
+    .mobile-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 800;
+      background: rgba(8,8,8,0.97);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    .mobile-menu.open { opacity: 1; visibility: visible; }
+    .mobile-menu a {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 8vw, 3rem);
+      letter-spacing: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s, transform 0.2s;
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    .mobile-menu.open a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .mobile-menu a:hover { color: var(--red); }
+    .mobile-menu a:nth-child(1) { transition-delay: 0.05s; }
+    .mobile-menu a:nth-child(2) { transition-delay: 0.10s; }
+    .mobile-menu a:nth-child(3) { transition-delay: 0.15s; }
+    .mobile-menu a:nth-child(4) { transition-delay: 0.20s; }
+    .mobile-menu a:nth-child(5) { transition-delay: 0.25s; }
+    .mobile-menu-red {
+      width: 40px; height: 3px;
+      background: var(--red);
+      margin: 16px 0;
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    .hero {
+      position: relative;
+      height: 100svh;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* Parallax bg */
+    .hero-bg {
+      position: absolute;
+      inset: -60px;
+      background:
+        linear-gradient(to bottom, rgba(8,8,8,0.45) 0%, rgba(8,8,8,0.82) 100%),
+        url('media/LINE_ALBUM_活動写真_260422_1.jpg') center/cover no-repeat;
+      will-change: transform;
+    }
+
+    /* Speed lines canvas */
+    #speed-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .hero-stripe {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 5px;
+      background: var(--red);
+    }
+    .hero-stripe-r {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 5px;
+      background: var(--red);
+      opacity: 0.3;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding: 0 clamp(16px, 5vw, 40px);
+      max-width: 900px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(0.65rem, 2vw, 0.78rem);
+      letter-spacing: clamp(2px, 1vw, 5px);
+      text-transform: uppercase;
+      color: var(--red);
+      border: 1px solid var(--red);
+      padding: 6px 20px;
+      margin-bottom: 28px;
+      animation: heroFadeUp 0.9s 0.3s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 14vw, 10rem);
+      letter-spacing: clamp(4px, 2vw, 10px);
+      line-height: 0.92;
+      color: var(--white);
+      animation: heroFadeUp 0.9s 0.45s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    .hero h1 .glitch {
+      position: relative;
+      display: inline-block;
+      color: var(--red);
+    }
+    .hero h1 .glitch::before,
+    .hero h1 .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      color: var(--red);
+    }
+    .hero h1 .glitch::before {
+      animation: glitch1 3.5s infinite;
+      clip-path: polygon(0 0, 100% 0, 100% 40%, 0 40%);
+      transform: translate(-2px, -1px);
+      opacity: 0.7;
+    }
+    .hero h1 .glitch::after {
+      animation: glitch2 3.5s infinite;
+      clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+      transform: translate(2px, 1px);
+      opacity: 0.7;
+    }
+
+    .hero-sub {
+      margin-top: 20px;
+      font-size: clamp(0.8rem, 2.5vw, 0.98rem);
+      color: rgba(239,239,239,0.65);
+      line-height: 1.9;
+      animation: heroFadeUp 0.9s 0.6s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .hero-cta {
+      margin-top: 36px;
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: heroFadeUp 0.9s 0.75s cubic-bezier(0.4,0,0.2,1) both;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      animation: heroFadeUp 0.9s 1.1s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    .hero-scroll span {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, var(--red), transparent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: clamp(12px, 2vw, 15px) clamp(24px, 4vw, 38px);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.08);
+      transform: translateX(-110%);
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .btn:hover::before { transform: translateX(0); }
+    .btn-primary { background: var(--red); color: var(--white); border-color: var(--red); }
+    .btn-primary:hover { background: var(--red-dark); border-color: var(--red-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(229,0,18,0.35); }
+    .btn-outline { background: transparent; color: var(--white); border-color: rgba(255,255,255,0.35); }
+    .btn-outline:hover { border-color: var(--white); transform: translateY(-2px); }
+
+    /* ══════════════════════════════
+       SECTION BASE
+    ══════════════════════════════ */
+    section { padding: clamp(60px, 10vw, 110px) clamp(16px, 5vw, 48px); }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    .section-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      letter-spacing: 3px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 18px;
+    }
+    .section-divider {
+      width: 52px; height: 3px;
+      background: var(--red);
+      margin-bottom: 48px;
+    }
+
+    /* ══════════════════════════════
+       STATS BAR
+    ══════════════════════════════ */
+    .stats-bar { background: var(--red); overflow: hidden; }
+    .stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .stat-item {
+      padding: clamp(24px, 4vw, 40px) 20px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.18);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.06);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .stat-item:hover::before { transform: translateY(0); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      letter-spacing: 2px;
+      color: var(--white);
+      display: block;
+    }
+    .stat-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.72);
+    }
+
+    /* ══════════════════════════════
+       ABOUT
+    ══════════════════════════════ */
+    .about { background: var(--dark); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 8vw, 90px);
+      align-items: center;
+    }
+    .about-text p {
+      color: rgba(239,239,239,0.65);
+      font-size: clamp(0.88rem, 2vw, 0.97rem);
+      margin-bottom: 18px;
+    }
+    .about-img { position: relative; }
+    .about-img::before {
+      content: '';
+      position: absolute;
+      top: -14px; left: -14px;
+      right: 14px; bottom: 14px;
+      border: 2px solid var(--red);
+      z-index: 0;
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .about-img:hover::before { transform: translate(-4px, -4px); }
+    .about-img img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .about-img:hover img { transform: scale(1.02); }
+
+    /* ══════════════════════════════
+       VIDEOS
+    ══════════════════════════════ */
+    .videos { background: var(--black); }
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+      gap: 20px;
+    }
+    .video-featured {
+      grid-column: 1 / -1;
+    }
+    .video-featured video {
+      width: 100%;
+      max-height: 520px;
+      object-fit: cover;
+      display: block;
+    }
+    @media (max-width: 600px) {
+      .video-featured video { max-height: 240px; }
+    }
+    .video-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      text-decoration: none;
+      display: block;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), border-color 0.3s, box-shadow 0.35s;
+    }
+    .video-card:hover { transform: translateY(-8px); border-color: var(--red); box-shadow: 0 16px 40px rgba(229,0,18,0.18); }
+    .video-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+    }
+    .video-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .video-card:hover .video-thumb img { transform: scale(1.07); }
+    .play-btn {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.38);
+      transition: background 0.3s;
+    }
+    .play-icon {
+      width: 52px; height: 52px;
+      background: var(--red);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s;
+    }
+    .play-icon svg { width: 20px; height: 20px; fill: var(--white); margin-left: 3px; }
+    .video-card:hover .play-btn { background: rgba(229,0,18,0.2); }
+    .video-card:hover .play-icon { transform: scale(1.15); box-shadow: 0 0 28px rgba(229,0,18,0.55); }
+    .video-info { padding: 18px 22px; }
+    .video-year {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .video-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 1px;
+    }
+
+    /* ══════════════════════════════
+       GALLERY
+    ══════════════════════════════ */
+    .gallery-teaser { background: var(--black); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 200px 200px;
+      gap: 6px;
+      margin-bottom: 36px;
+    }
+    .gallery-item {
+      overflow: hidden;
+      background: var(--card);
+      cursor: pointer;
+    }
+    .gallery-item:first-child { grid-column: span 2; grid-row: span 2; }
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: brightness(0.75) saturate(0.85);
+      transition: transform 0.6s cubic-bezier(0.4,0,0.2,1), filter 0.4s;
+    }
+    .gallery-item:hover img { transform: scale(1.1); filter: brightness(1) saturate(1.1); }
+
+    /* ══════════════════════════════
+       SNS
+    ══════════════════════════════ */
+    .sns { background: var(--dark); }
+    .sns-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .sns-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: clamp(20px, 3vw, 30px) clamp(20px, 3vw, 32px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .sns-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 3px;
+      background: var(--red);
+      transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .sns-card:hover::after { width: 100%; }
+    .sns-card:hover { transform: translateY(-5px); border-color: rgba(229,0,18,0.4); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+    .sns-icon { width: 44px; height: 44px; flex-shrink: 0; }
+    .sns-icon svg { width: 100%; height: 100%; }
+    .sns-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 3px;
+    }
+    .sns-handle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 1px;
+    }
+
+    /* ══════════════════════════════
+       CONTACT
+    ══════════════════════════════ */
+    .contact { background: var(--dark); }
+    .contact-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 8vw, 90px);
+      align-items: start;
+    }
+    .contact-info p { color: rgba(239,239,239,0.65); font-size: 0.95rem; margin-bottom: 32px; }
+    .contact-item { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .contact-icon {
+      width: 44px; height: 44px;
+      background: var(--red);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.25s;
+    }
+    .contact-item:hover .contact-icon { transform: rotate(6deg) scale(1.08); }
+    .contact-icon svg { width: 20px; height: 20px; fill: var(--white); }
+    .contact-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .contact-val { font-size: 0.92rem; color: var(--white); word-break: break-all; }
+    .contact-form { display: flex; flex-direction: column; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .form-group input, .form-group textarea {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 13px 16px;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      resize: vertical;
+      width: 100%;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(229,0,18,0.12);
+    }
+    .form-group textarea { min-height: 110px; }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: clamp(48px, 8vw, 72px) clamp(16px, 5vw, 48px) clamp(28px, 5vw, 44px);
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: clamp(32px, 6vw, 64px);
+      margin-bottom: 48px;
+    }
+    .footer-brand .nav-logo { display: block; margin-bottom: 14px; }
+    .footer-brand p { font-size: 0.84rem; color: var(--muted); line-height: 1.9; }
+    .footer-col h4 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 18px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 9px; }
+    .footer-col ul a { font-size: 0.84rem; color: var(--muted); text-decoration: none; transition: color 0.2s, padding-left 0.2s; display: inline-block; }
+    .footer-col ul a:hover { color: var(--white); padding-left: 6px; }
+    .footer-bottom {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+    .footer-bottom p { font-size: 0.78rem; color: var(--muted); }
+    .footer-sns { display: flex; gap: 12px; }
+    .footer-sns a {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); text-decoration: none;
+      transition: all 0.25s;
+    }
+    .footer-sns a:hover { border-color: var(--red); color: var(--white); background: var(--red); }
+    .footer-sns svg { width: 15px; height: 15px; fill: currentColor; }
+
+    /* ══════════════════════════════
+       REVEAL ANIMATIONS
+    ══════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.75s cubic-bezier(0.4,0,0.2,1), transform 0.75s cubic-bezier(0.4,0,0.2,1);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-left  { opacity: 0; transform: translateX(-40px); transition: opacity 0.75s cubic-bezier(0.4,0,0.2,1), transform 0.75s cubic-bezier(0.4,0,0.2,1); }
+    .reveal-left.visible { opacity: 1; transform: none; }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity 0.75s cubic-bezier(0.4,0,0.2,1), transform 0.75s cubic-bezier(0.4,0,0.2,1); }
+    .reveal-right.visible { opacity: 1; transform: none; }
+
+    /* delay helpers */
+    .d1 { transition-delay: 0.1s !important; }
+    .d2 { transition-delay: 0.2s !important; }
+    .d3 { transition-delay: 0.3s !important; }
+    .d4 { transition-delay: 0.4s !important; }
+
+    /* ══════════════════════════════
+       KEYFRAMES
+    ══════════════════════════════ */
+    @keyframes heroFadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scaleY(1); }
+      50%       { opacity: 0.3; transform: scaleY(0.55); }
+    }
+    @keyframes glitch1 {
+      0%,94%,100% { transform: translate(0); }
+      95%  { transform: translate(-3px, 1px); }
+      97%  { transform: translate(3px, -1px); }
+    }
+    @keyframes glitch2 {
+      0%,92%,100% { transform: translate(0); }
+      93%  { transform: translate(3px, 2px); }
+      96%  { transform: translate(-3px, -2px); }
+    }
+
+    /* ══════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════ */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .stat-item { border-bottom: 1px solid rgba(255,255,255,0.18); }
+      .stat-item:nth-child(2n) { border-right: none; }
+      .stat-item:nth-last-child(-n+2) { border-bottom: none; }
+
+      .about-grid { grid-template-columns: 1fr; gap: 44px; }
+      .about-img { order: -1; }
+      .about-img::before { display: none; }
+
+      .sns-grid { grid-template-columns: 1fr; }
+
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: 160px 160px 160px;
+      }
+      .gallery-item:first-child { grid-column: span 2; grid-row: span 1; }
+
+      .contact-inner { grid-template-columns: 1fr; gap: 44px; }
+
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { letter-spacing: 2px; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .video-grid { grid-template-columns: 1fr; }
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 130px 130px 130px;
+      }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-brand { grid-column: span 1; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (hover: none) {
+      .btn:hover::before { transform: translateX(-110%); }
+      .btn:active { opacity: 0.85; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LOADER ══ -->
+<div id="loader">
+  <div class="loader-logo">CIT<span>-</span>RACING</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">CIT<em>-</em>RACING</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#sns">SNS</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="メニュー">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ══ MOBILE MENU ══ -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about"   onclick="closeMenu()">About</a>
+  <div class="mobile-menu-red"></div>
+  <a href="#videos"  onclick="closeMenu()">Videos</a>
+  <a href="#gallery" onclick="closeMenu()">Gallery</a>
+  <a href="#sns"     onclick="closeMenu()">SNS</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <canvas id="speed-canvas"></canvas>
+  <div class="hero-stripe"></div>
+  <div class="hero-stripe-r"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Student Formula Japan 2026</div>
+    <h1>
+      CIT<span class="glitch" data-text="-">-</span><br>
+      RACING<br>
+      TEAM
+    </h1>
+    <p class="hero-sub">
+      日本大学生産工学部 学術系公認サークル<br>
+      学生フォーミュラチームの公式ホームページ
+    </p>
+    <div class="hero-cta">
+      <a href="#about"  class="btn btn-primary">ABOUT US</a>
+      <a href="#videos" class="btn btn-outline">WATCH VIDEOS</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══ STATS ══ -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-num" data-count="2026" data-plain>2026</span>
+      <span class="stat-label">大会目標年</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-count="10">0</span>
+      <span class="stat-label">Years of Activity</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-plain>SAE</span>
+      <span class="stat-label">Formula Style</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-plain>NIU</span>
+      <span class="stat-label">日本大学生産工学部</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ABOUT ══ -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="reveal-left">
+        <div class="section-label">About Us</div>
+        <h2 class="section-title">DRIVEN BY<br>PASSION</h2>
+        <div class="section-divider"></div>
+        <p>CIT-Racing Teamは、日本大学生産工学部の学術系公認サークルとして活動する学生フォーミュラチームです。</p>
+        <p>学生自らが設計・製作したフォーミュラスタイルの車両で競い合う「学生フォーミュラ日本大会」に向けて、日々エンジニアリングの限界に挑んでいます。</p>
+        <p>設計・製作・テスト・競技のすべてを学生主体で行い、実践的な技術力とチームワークを磨いています。</p>
+        <a href="#contact" class="btn btn-primary" style="margin-top:12px;">JOIN US</a>
+      </div>
+      <div class="about-img reveal-right">
+        <img src="media/LINE_ALBUM_車両製作_260422_1.jpg" alt="CIT Racing Car" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ VIDEOS ══ -->
+<section class="videos" id="videos">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Videos</div>
+      <h2 class="section-title">RACE FOOTAGE</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="video-grid">
+      <!-- 新歓PV 全幅動画 -->
+      <div class="video-card video-featured reveal d1">
+        <video controls preload="metadata" poster="media/LINE_ALBUM_活動写真_260422_1.jpg">
+          <source src="media/新歓PV.mov" type="video/mp4" />
+          お使いのブラウザは動画再生に対応していません。
+        </video>
+        <div class="video-info">
+          <div class="video-year">2026</div>
+          <div class="video-title">新歓PV — CIT-Racing</div>
+        </div>
+      </div>
+      <!-- 写真カード -->
+      <div class="video-card reveal d2">
+        <div class="video-thumb">
+          <img src="media/LINE_ALBUM_活動写真_260422_2.jpg" alt="活動写真" loading="lazy" />
+        </div>
+        <div class="video-info">
+          <div class="video-year">活動写真</div>
+          <div class="video-title">Team Activity</div>
+        </div>
+      </div>
+      <div class="video-card reveal d3">
+        <div class="video-thumb">
+          <img src="media/LINE_ALBUM_車両製作_260422_2.jpg" alt="車両製作" loading="lazy" />
+        </div>
+        <div class="video-info">
+          <div class="video-year">車両製作</div>
+          <div class="video-title">Car Manufacturing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ GALLERY ══ -->
+<section class="gallery-teaser" id="gallery">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Gallery</div>
+      <h2 class="section-title">MOMENTS</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-item"><img src="media/LINE_ALBUM_活動写真_260422_1.jpg" alt="活動写真" loading="lazy" /></div>
+      <div class="gallery-item"><img src="media/LINE_ALBUM_活動写真_260422_2.jpg" alt="活動写真" loading="lazy" /></div>
+      <div class="gallery-item"><img src="media/LINE_ALBUM_車両製作_260422_1.jpg" alt="車両製作" loading="lazy" /></div>
+      <div class="gallery-item"><img src="media/LINE_ALBUM_車両製作_260422_2.jpg" alt="車両製作" loading="lazy" /></div>
+      <div class="gallery-item"><img src="media/LINE_ALBUM_活動写真_260422_1.jpg" alt="活動写真" loading="lazy" /></div>
+    </div>
+    <div style="text-align:center" class="reveal">
+      <a href="#" class="btn btn-outline">VIEW ALL PHOTOS</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SNS ══ -->
+<section class="sns" id="sns">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Follow Us</div>
+      <h2 class="section-title">STAY CONNECTED</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="sns-grid">
+      <a href="https://twitter.com/CIT_Racing_Team" target="_blank" rel="noopener" class="sns-card reveal d1">
+        <div class="sns-icon">
+          <svg viewBox="0 0 24 24" fill="#efefef"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.626zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </div>
+        <div>
+          <span class="sns-name">Twitter / X</span>
+          <span class="sns-handle">@CIT_Racing_Team</span>
+        </div>
+      </a>
+      <a href="https://www.instagram.com/citracingteam/" target="_blank" rel="noopener" class="sns-card reveal d2">
+        <div class="sns-icon">
+          <svg viewBox="0 0 24 24">
+            <defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#f09433"/>
+              <stop offset="25%"  stop-color="#e6683c"/>
+              <stop offset="50%"  stop-color="#dc2743"/>
+              <stop offset="75%"  stop-color="#cc2366"/>
+              <stop offset="100%" stop-color="#bc1888"/>
+            </linearGradient></defs>
+            <path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="sns-name">Instagram</span>
+          <span class="sns-handle">CIT_Racing_Team</span>
+        </div>
+      </a>
+      <a href="#" target="_blank" rel="noopener" class="sns-card reveal d3">
+        <div class="sns-icon">
+          <svg viewBox="0 0 24 24" fill="#06C755"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+        </div>
+        <div>
+          <span class="sns-name">LINE オープンチャット</span>
+          <span class="sns-handle">CIT Racing Team</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT ══ -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Contact</div>
+      <h2 class="section-title">GET IN TOUCH</h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="contact-inner">
+      <div class="reveal-left">
+        <p>活動への参加・スポンサーシップ・取材など、お気軽にお問い合わせください。</p>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-val">citracingteam@gmail.com</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+          </div>
+          <div>
+            <div class="contact-label">Twitter / X</div>
+            <div class="contact-val">@CIT_Racing_Team</div>
+          </div>
+        </div>
+      </div>
+      <form class="contact-form reveal-right" onsubmit="return false;">
+        <div class="form-group">
+          <label>お名前</label>
+          <input type="text" placeholder="山田 太郎" />
+        </div>
+        <div class="form-group">
+          <label>メールアドレス</label>
+          <input type="email" placeholder="example@email.com" />
+        </div>
+        <div class="form-group">
+          <label>件名</label>
+          <input type="text" placeholder="お問い合わせ件名" />
+        </div>
+        <div class="form-group">
+          <label>メッセージ</label>
+          <textarea placeholder="メッセージを入力してください..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">SEND MESSAGE</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">CIT<em>-</em>RACING</a>
+      <p>日本大学生産工学部<br>学術系公認サークル<br>学生フォーミュラチーム</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#videos">Videos</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#sns">SNS</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Links</h4>
+      <ul>
+        <li><a href="#">Member</a></li>
+        <li><a href="#">Sponsors</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">OB・OG</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2026 CIT-Racing Team. All rights reserved.</p>
+    <div class="footer-sns">
+      <a href="https://twitter.com/CIT_Racing_Team" target="_blank" rel="noopener" aria-label="Twitter">
+        <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.626zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/citracingteam/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── LOADER ── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+  }, 1500);
+});
+
+/* ── HAMBURGER / MOBILE MENU ── */
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  const open = hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+function closeMenu() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── NAV SCROLL ── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+/* ── PARALLAX HERO ── */
+const heroBg = document.getElementById('heroBg');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < window.innerHeight * 1.5) {
+    heroBg.style.transform = `translateY(${y * 0.28}px)`;
+  }
+}, { passive: true });
+
+/* ── SPEED LINES CANVAS ── */
+(function() {
+  const canvas = document.getElementById('speed-canvas');
+  const ctx = canvas.getContext('2d');
+  let lines = [];
+  let raf;
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  function mkLine() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      len: 40 + Math.random() * 180,
+      speed: 6 + Math.random() * 10,
+      alpha: 0.15 + Math.random() * 0.25,
+      w: 0.5 + Math.random() * 1.2,
+    };
+  }
+
+  for (let i = 0; i < 55; i++) {
+    const l = mkLine();
+    l.x = Math.random() * canvas.width;
+    lines.push(l);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    lines.forEach(l => {
+      ctx.beginPath();
+      ctx.moveTo(l.x, l.y);
+      ctx.lineTo(l.x + l.len, l.y);
+      ctx.strokeStyle = `rgba(229,0,18,${l.alpha})`;
+      ctx.lineWidth = l.w;
+      ctx.stroke();
+      l.x += l.speed;
+      if (l.x > canvas.width + l.len) {
+        Object.assign(l, mkLine());
+        l.x = -l.len;
+      }
+    });
+    raf = requestAnimationFrame(draw);
+  }
+
+  // Only animate if hero is visible
+  const heroEl = document.querySelector('.hero');
+  const obsHero = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { draw(); }
+    else { cancelAnimationFrame(raf); }
+  });
+  obsHero.observe(heroEl);
+})();
+
+/* ── SCROLL REVEAL ── */
+const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ── COUNT-UP ── */
+function countUp(el, target, duration) {
+  let start = 0;
+  const step = timestamp => {
+    if (!start) start = timestamp;
+    const p = Math.min((timestamp - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(ease * target) + (el.dataset.suffix || '');
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target + (el.dataset.suffix || '');
+  };
+  requestAnimationFrame(step);
+}
+
+const statsBar = document.querySelector('.stats-bar');
+let counted = false;
+const statsObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && !counted) {
+    counted = true;
+    document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+      countUp(el, parseInt(el.dataset.count), 1400);
+    });
+  }
+}, { threshold: 0.5 });
+statsObs.observe(statsBar);
+</script>
+</body>
+</html>
